@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>方向计算测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .test-case {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 3px;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>方向计算测试</h1>
+        
+        <div class="test-case">
+            <h3>测试1: 荆州 -> 纽约</h3>
+            <p>预期: 东北方向</p>
+            <div class="result" id="result1"></div>
+        </div>
+        
+        <div class="test-case">
+            <h3>测试2: 无锡 -> 大冶</h3>
+            <p>预期: 西方</p>
+            <div class="result" id="result2"></div>
+        </div>
+        
+        <div class="test-case">
+            <h3>测试3: 吕梁 -> 晋城</h3>
+            <p>预期: 南方</p>
+            <div class="result" id="result3"></div>
+        </div>
+    </div>
+
+    <script>
+        // 城市坐标数据库（简化版，仅包含测试所需城市）
+        const cityCoordinates = {
+            // 中国城市
+            '荆州': { lat: 30.3351, lng: 112.2472 },
+            '无锡': { lat: 31.5546, lng: 120.3014 },
+            '大冶': { lat: 30.0553, lng: 114.9808 },
+            '吕梁': { lat: 37.5178, lng: 111.1073 },
+            '晋城': { lat: 35.4881, lng: 112.8916 },
+            // 外国城市
+            '纽约': { lat: 40.7128, lng: -74.0060 }
+        };
+        
+        // 国家首都映射
+        const countryCapitals = {
+            '美国': '华盛顿',
+            '中国': '北京',
+            '日本': '东京',
+            '韩国': '首尔',
+            '英国': '伦敦',
+            '法国': '巴黎',
+            '德国': '柏林',
+            '俄罗斯': '莫斯科',
+            '澳大利亚': '堪培拉',
+            '加拿大': '渥太华'
+        };
+        
+        // 检查城市是否有效（支持前缀匹配）
+        function isValidCity(city) {
+            if (!city || typeof city !== 'string') {
+                return false;
+            }
+            
+            // 精确匹配
+            if (cityCoordinates[city]) {
+                return true;
+            }
+            
+            // 前缀匹配
+            const cityLower = city.toLowerCase();
+            return Object.keys(cityCoordinates).some(c => c.toLowerCase().startsWith(cityLower));
+        }
+        
+        // 获取城市坐标（支持前缀匹配）
+        function getCoordinates(location) {
+            if (!location || typeof location !== 'string') {
+                return null;
+            }
+            
+            // 精确匹配
+            if (cityCoordinates[location]) {
+                return cityCoordinates[location];
+            }
+            
+            // 前缀匹配
+            const locationLower = location.toLowerCase();
+            const matchedCity = Object.keys(cityCoordinates).find(city => city.toLowerCase().startsWith(locationLower));
+            if (matchedCity) {
+                return cityCoordinates[matchedCity];
+            }
+            
+            return null;
+        }
+        
+        // 计算两点之间的方位角（返回0-360度）
+        function calculateBearing(lat1, lng1, lat2, lng2) {
+            // 将经纬度转换为弧度
+            const toRad = (degrees) => degrees * Math.PI / 180;
+            const toDeg = (radians) => radians * 180 / Math.PI;
+            
+            lat1 = toRad(lat1);
+            lng1 = toRad(lng1);
+            lat2 = toRad(lat2);
+            lng2 = toRad(lng2);
+            
+            // 计算经度差，确保使用最短路径（小于180度）
+            let deltaLng = lng2 - lng1;
+            if (deltaLng > Math.PI) {
+                deltaLng -= 2 * Math.PI;
+            } else if (deltaLng < -Math.PI) {
+                deltaLng += 2 * Math.PI;
+            }
+            
+            // 计算方位角
+            const y = Math.sin(deltaLng) * Math.cos(lat2);
+            const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(deltaLng);
+            
+            let bearing = Math.atan2(y, x);
+            
+            // 转换为度数
+            bearing = toDeg(bearing);
+            
+            // 转换为0-360度
+            bearing = (bearing + 360) % 360;
+            
+            return bearing;
+        }
+        
+        // 将方位角转换为方位名称（16方向）
+        function bearingToDirection(bearing) {
+            // 调整方位角，确保0-360度
+            bearing = (bearing + 360) % 360;
+            
+            // 16方向划分
+            if (bearing < 11.25 || bearing >= 348.75) {
+                return '北';
+            } else if (bearing >= 11.25 && bearing < 33.75) {
+                return '北偏东';
+            } else if (bearing >= 33.75 && bearing < 56.25) {
+                return '东北';
+            } else if (bearing >= 56.25 && bearing < 78.75) {
+                return '东偏北';
+            } else if (bearing >= 78.75 && bearing < 101.25) {
+                return '东';
+            } else if (bearing >= 101.25 && bearing < 123.75) {
+                return '东偏南';
+            } else if (bearing >= 123.75 && bearing < 146.25) {
+                return '东南';
+            } else if (bearing >= 146.25 && bearing < 168.75) {
+                return '南偏东';
+            } else if (bearing >= 168.75 && bearing < 191.25) {
+                return '南';
+            } else if (bearing >= 191.25 && bearing < 213.75) {
+                return '南偏西';
+            } else if (bearing >= 213.75 && bearing < 236.25) {
+                return '西南';
+            } else if (bearing >= 236.25 && bearing < 258.75) {
+                return '西偏南';
+            } else if (bearing >= 258.75 && bearing < 281.25) {
+                return '西';
+            } else if (bearing >= 281.25 && bearing < 303.75) {
+                return '西偏北';
+            } else if (bearing >= 303.75 && bearing < 326.25) {
+                return '西北';
+            } else if (bearing >= 326.25 && bearing < 348.75) {
+                return '北偏西';
+            }
+        }
+        
+        // 获取两个城市之间的方向
+        function getDirection(fromCity, toCity) {
+            const fromCoords = getCoordinates(fromCity);
+            const toCoords = getCoordinates(toCity);
+            
+            if (!fromCoords || !toCoords) {
+                return '无效城市';
+            }
+            
+            const bearing = calculateBearing(fromCoords.lat, fromCoords.lng, toCoords.lat, toCoords.lng);
+            return bearingToDirection(bearing);
+        }
+        
+        // 运行测试
+        function runTests() {
+            // 测试1: 荆州 -> 纽约
+            const result1 = getDirection('荆州', '纽约');
+            document.getElementById('result1').innerHTML = `计算结果: ${result1} (方位角: ${calculateBearing(30.3351, 112.2472, 40.7128, -74.0060).toFixed(2)}°)`;
+            
+            // 测试2: 无锡 -> 大冶
+            const result2 = getDirection('无锡', '大冶');
+            document.getElementById('result2').innerHTML = `计算结果: ${result2} (方位角: ${calculateBearing(31.5546, 120.3014, 30.0553, 114.9808).toFixed(2)}°)`;
+            
+            // 测试3: 吕梁 -> 晋城
+            const result3 = getDirection('吕梁', '晋城');
+            document.getElementById('result3').innerHTML = `计算结果: ${result3} (方位角: ${calculateBearing(37.5178, 111.1073, 35.4881, 112.8916).toFixed(2)}°)`;
+        }
+        
+        // 页面加载时运行测试
+        window.onload = runTests;
+    </script>
+</body>
+</html>

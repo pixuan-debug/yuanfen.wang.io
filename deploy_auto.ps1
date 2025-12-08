@@ -32,7 +32,7 @@ try {
     
     # Push to correct branch
     Write-Host "Pushing to GitHub..." -ForegroundColor Yellow
-    & $gitPath push origin master 2>&1 | Write-Host
+    & $gitPath push origin main 2>&1 | Write-Host
     
     Write-Host "" -ForegroundColor Green
     Write-Host "✅ Deployment successful!" -ForegroundColor Green

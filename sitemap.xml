@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://www.example.com</loc>
+    <loc>https://fatenet.cn</loc>
     <lastmod>2025-12-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.example.com/#position</loc>
+    <loc>https://fatenet.cn/#position</loc>
     <lastmod>2025-12-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.example.com/#location-match</loc>
+    <loc>https://fatenet.cn/#location-match</loc>
     <lastmod>2025-12-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.example.com/#timing</loc>
+    <loc>https://fatenet.cn/#timing</loc>
     <lastmod>2025-12-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

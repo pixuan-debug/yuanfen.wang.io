@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://fatenet.cn/sitemap.xml
+Sitemap: https://www.fatenet.cn/sitemap.xml
 
 # 禁止抓取的目录或文件
 Disallow: /private/
